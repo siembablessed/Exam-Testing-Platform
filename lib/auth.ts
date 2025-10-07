@@ -46,12 +46,42 @@ export function calculatePasswordStrength(password: string): {
   return { strength, score, feedback }
 }
 
-export function setAuthCookie(userId: number, email: string, role = "student") {
-  const authData = JSON.stringify({ userId, email, role })
+import { getElectronAppMode } from "./isElectron"
+
+export async function setAuthCookie(userId: number, email: string, role = "student") {
+  // Override role if running in Electron instructor mode
+  const electronMode = await getElectronAppMode()
+  const finalRole = electronMode === 'instructor' ? 'instructor' : role
+  
+  const authData = JSON.stringify({ userId, email, role: finalRole })
   document.cookie = `auth=${btoa(authData)}; path=/; max-age=${60 * 60 * 24 * 7}` // 7 days
 }
 
-export function getAuthCookie(): { userId: number; email: string; role: string } | null {
+export async function getAuthCookie(): Promise<{ userId: number; email: string; role: string } | null> {
+  if (typeof document === "undefined") return null
+
+  const cookies = document.cookie.split("; ")
+  const authCookie = cookies.find((c) => c.startsWith("auth="))
+
+  if (!authCookie) return null
+
+  try {
+    const authData = JSON.parse(atob(authCookie.split("=")[1]))
+    
+    // Override role if running in Electron instructor mode
+    const electronMode = await getElectronAppMode()
+    if (electronMode === 'instructor') {
+      authData.role = 'instructor'
+    }
+    
+    return authData
+  } catch {
+    return null
+  }
+}
+
+// Synchronous version for backward compatibility
+export function getAuthCookieSync(): { userId: number; email: string; role: string } | null {
   if (typeof document === "undefined") return null
 
   const cookies = document.cookie.split("; ")

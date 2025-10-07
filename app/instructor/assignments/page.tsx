@@ -30,13 +30,16 @@ export default function AssignmentsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const auth = getAuthCookie()
-    if (!auth || auth.role !== "instructor") {
-      router.push("/login")
-      return
+    const checkAuth = async () => {
+      const auth = await getAuthCookie()
+      if (!auth || auth.role !== "instructor") {
+        router.push("/login")
+        return
+      }
+      setInstructorId(auth.userId)
+      fetchAssignments(auth.userId)
     }
-    setInstructorId(auth.userId)
-    fetchAssignments(auth.userId)
+    checkAuth()
   }, [router])
 
   const fetchAssignments = async (id: number) => {

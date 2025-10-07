@@ -53,13 +53,16 @@ export default function StudentDetailPage() {
   const studentId = params.id
 
   useEffect(() => {
-    const auth = getAuthCookie()
-    if (!auth) {
-      router.push("/login")
-      return
+    const checkAuth = async () => {
+      const auth = await getAuthCookie()
+      if (!auth) {
+        router.push("/login")
+        return
+      }
+      setInstructorId(auth.userId)
+      fetchStudentDetails(auth.userId, studentId as string)
     }
-    setInstructorId(auth.userId)
-    fetchStudentDetails(auth.userId, studentId as string)
+    checkAuth()
   }, [router, studentId])
 
   const fetchStudentDetails = async (instrId: number, studId: string) => {

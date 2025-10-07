@@ -66,13 +66,16 @@ export default function InstructorDashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    const auth = getAuthCookie()
-    if (!auth || auth.role !== "instructor") {
-      router.push("/login")
-      return
+    const checkAuth = async () => {
+      const auth = await getAuthCookie()
+      if (!auth || auth.role !== "instructor") {
+        router.push("/login")
+        return
+      }
+      setInstructorId(auth.userId)
+      fetchStudents(auth.userId)
     }
-    setInstructorId(auth.userId)
-    fetchStudents(auth.userId)
+    checkAuth()
   }, [router])
 
   useEffect(() => {

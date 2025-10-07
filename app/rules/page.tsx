@@ -15,12 +15,15 @@ export default function RulesPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const authData = getAuthCookie()
-    if (!authData) {
-      router.push("/login")
-      return
+    const checkAuth = async () => {
+      const authData = await getAuthCookie()
+      if (!authData) {
+        router.push("/login")
+        return
+      }
+      setAuth(authData)
     }
-    setAuth(authData)
+    checkAuth()
   }, [router])
 
   const handleStartTest = async () => {
@@ -56,13 +59,14 @@ export default function RulesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-3 sm:p-4 md:p-8">
-      <div className="max-w-3xl mx-auto space-y-4 sm:space-y-6">
-        <Card>
-          <CardHeader>
+    <div className="h-screen bg-background p-3 sm:p-4 md:p-8 flex flex-col overflow-hidden">
+      <div className="max-w-3xl mx-auto flex-1 flex flex-col min-h-0">
+        <Card className="flex-1 flex flex-col min-h-0">
+          <CardHeader className="flex-shrink-0 pb-4">
             <CardTitle className="text-xl sm:text-2xl">Exam Rules & Instructions</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 sm:space-y-6">
+          <CardContent className="flex-1 flex flex-col min-h-0 p-6">
+            <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 pr-2 mb-6">
             {/* Time Limits */}
             <div className="space-y-3">
               <div className="flex items-start gap-2 sm:gap-3">
@@ -143,9 +147,11 @@ export default function RulesPage() {
                 <div>• Cryptography</div>
               </div>
             </div>
+            </div>
 
-            {/* Agreement */}
-            <div className="border-t pt-4 sm:pt-6">
+            {/* Fixed bottom section with agreement and buttons */}
+            <div className="flex-shrink-0 border-t pt-4 space-y-4">
+              {/* Agreement */}
               <div className="flex items-start gap-2 sm:gap-3">
                 <Checkbox
                   id="agree"
@@ -158,16 +164,16 @@ export default function RulesPage() {
                   understand that the exam will be timed and questions must be answered sequentially.
                 </label>
               </div>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button variant="outline" onClick={() => router.push("/")} className="flex-1">
-                Cancel
-              </Button>
-              <Button onClick={handleStartTest} disabled={!agreed || loading} className="flex-1">
-                {loading ? "Starting..." : "Start Exam"}
-              </Button>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button variant="outline" onClick={() => router.push("/")} className="flex-1">
+                  Cancel
+                </Button>
+                <Button onClick={handleStartTest} disabled={!agreed || loading} className="flex-1">
+                  {loading ? "Starting..." : "Start Exam"}
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

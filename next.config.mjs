@@ -9,6 +9,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+  // Removed output: 'export' to enable API routes for development
+  // For production builds with Electron, we don't need static export
+};
 
-export default nextConfig
+export default nextConfig;

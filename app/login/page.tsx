@@ -30,9 +30,15 @@ export default function LoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setAuthCookie(data.user.id, data.user.email, data.user.role)
+        await setAuthCookie(data.user.id, data.user.email, data.user.role)
 
-        if (data.user.role === "instructor") {
+        // Check final role after potential Electron override
+        const finalRole = await import("@/lib/isElectron").then(async (mod) => {
+          const electronMode = await mod.getElectronAppMode()
+          return electronMode === 'instructor' ? 'instructor' : data.user.role
+        })
+
+        if (finalRole === "instructor") {
           router.push("/instructor")
         } else {
           router.push("/dashboard")
